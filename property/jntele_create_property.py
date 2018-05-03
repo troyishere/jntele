@@ -154,7 +154,7 @@ class LteCreateProperty(object):
                                 zy_bianma]
                         df_prop.loc[num]=[info[3],info[4],info[0],#head
                                 u'07030602',u'定向天线',
-                                zy_name+u'基站天线',
+                                info[2]+info[0]+self._gettianxian(info[14])+u'基站天线',
                                 info[17],
                                 self._getchangjiaL(info[19]),
                                 self._getchangjiaS(info[19]),

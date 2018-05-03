@@ -21,7 +21,7 @@ wbs_base = {
 
 class LteBase(object):
     
-    def __init__(self, wbs_in='wbs0316-ok.xlsx',dir_in='base\\'):
+    def __init__(self,wbs_in='wbs0316-ok.xlsx',dir_in='base\\'):
         self.dir_in = dir_in
 #        print(os.getcwd())
 #        print(os.path.abspath('.'))
@@ -44,8 +44,18 @@ class LteBase(object):
         else:
             wbs_name = ls[0]
         return wbs_name
-    def getWBSId(self,wbs_name):
-        pass
+    
+    def getChuyanDate(self,wbs_id):
+        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
+        dfs = dfs.fillna('')
+        if dfs.shape[0] == 0:
+            print('----> 未找到工程编码%s对应的初验日期,返回<空>'%(wbs_id))
+            return ''
+        ls = dfs.loc[dfs.index[0]].values
+        return self.private_getDateStr(ls[4])
+    
+    def getAllWBSId(self):
+        return Series(self.df_wbs[wbs_base['wbs_id']]).tolist()
     
     def getWBSDates(self,wbs_id):
         '''获取工程编码对应的开工、完工、初验、终验时间'''
@@ -85,10 +95,10 @@ class LteBase(object):
 
         if isinstance(date_info,int) or isinstance(date_info,np.int64):
             '''输入为数字'''
-            dt = self.private_fromNum2Datetime(date_info)
+            dt = self.private_fromNum2Date(date_info)
         elif isinstance(date_info,float):
             '''输入为浮点数'''
-            dt = self.private_fromNum2Datetime(int(date_info))
+            dt = self.private_fromNum2Date(int(date_info))
         elif isinstance(date_info,str):
             '''输入为字符串'''
             if date_info == '':

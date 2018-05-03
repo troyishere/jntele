@@ -181,7 +181,7 @@ class LtePrint(object):
         htmls.append("        <tr>")
         htmls.append(get_td_3ok(''))
         htmls.append(get_td_3ok(fuze))
-        htmls.append(get_td_3ok(''))
+        htmls.append(get_td_3ok('WBSID'))
         htmls.append(get_td_3ok(wbs_id))
         
         htmls.append("        </tr>")

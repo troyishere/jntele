@@ -10,6 +10,7 @@ from property.jntele_web_resource import LteWebResource
 from property.jntele_print_property import LtePrint
 from property.jntele_create_property import LteCreateProperty
 from property.jntele_sap_property import LteSapProperty
+from property.jntele_image import OperateLteImage
 
 class OperateLteProperty(object):
     '''无线网转固处理整合类'''
@@ -68,32 +69,44 @@ class OperateLteProperty(object):
         op = LtePrint(self.dir_base,self.dir_log)
         return op.getCommonReport(wbs_id,fuze,wbs_info,dir_out)
     
+    '''将JPG格式的验收报告扫描件命名格式化'''
+    def matchYanshouImage(self,wbs_ids = '',
+                          dir_in = 'img_yanshou_old\\',dir_out = 'img_yanshou_ok\\'):
+        op = OperateLteImage(self.dir_base,self.dir_log)
+        return op.matchYanshouImage(wbs_ids,dir_in,dir_out)
+    
+    '''将JPG格式无线网处理报账添加签名'''
+    def operateBaozhangImg(self,wbs_ids,dir_in = 'img_baozhang\\'):
+        op = OperateLteImage(self.dir_base,self.dir_log)
+        return op.operateBaozhangImg(wbs_ids,dir_in)
+    
 '''=============================================================='''             
 if __name__ == '__main__':
     op = OperateLteProperty()
     
-    # 生成资源录入表
-#    tmp = op.createLteResource('LTE6-0416.xlsx')   
-    #向资产基础管理文件追加资产条目
-#    op.appendLteProperty('LTE六期资源录入0403.xlsx','LTE6-0416.xlsx')    
-    wbs_ids = [
-            '17SD018303003',
-            '17SD018305001',
-            '17SD018305002',
-            '17SD018309001',
-            '17SD018310001',
-            '17SD018310002',
-            '17SD018311002',
-            '17SD018311003',
-            '17SD018314001',
-            '17SD018314002',
-            '17SD018314003',
-            '17SD018314004',
-            '17SD018315001',
-            '17SD018315002']
+    ## 生成资源录入表
+##    tmp = op.createLteResource('LTE6-0416.xlsx')   
+    # 生成资源录入表,并向资产基础管理文件追加资产条目
+#    op.appendLteProperty('LTE六期资源录入0502.xlsx','LTE6-0416.xlsx')    
+#    wbs_ids = [
+#            '17SD018303003',
+#            '17SD018305001',
+#            '17SD018305002',
+#            '17SD018309001',
+#            '17SD018310001',
+#            '17SD018310002',
+#            '17SD018311002',
+#            '17SD018311003',
+#            '17SD018314001',
+#            '17SD018314002',
+#            '17SD018314003',
+#            '17SD018314004',
+#            '17SD018315001',
+#            '17SD018315002',
+#            ]
     # 匹配资源ID
-    op.matchLteWebResource('LTE六期资源录入0403.xlsx',wbs_ids)
-    op.matchLteSapZhucai('LTE六期资源录入0403.xlsx','gongcheng\\sap_ok\\SAP-LTE6-041902-ok.xlsx',wbs_ids)
+#    op.matchLteWebResource('LTE六期资源录入0403.xlsx',wbs_ids)
+#    op.matchLteSapZhucai('LTE六期资源录入0403.xlsx','gongcheng\\sap_ok\\LTE6-ALL-0502-ok.xlsx',wbs_ids)
     
     # 生成PDF版资产明细
 #    wbs_ids = [
@@ -117,3 +130,15 @@ if __name__ == '__main__':
     
     #生成通用验收报告
 #    op.getCommonReport('17SD018316001','谷中杰','LTE六期枢纽楼华为网管')
+    
+    
+
+#    '''将JPG格式的验收报告扫描件命名格式化'''
+#    op.matchYanshouImage()
+
+
+#    '''将JPG格式无线网处理报账添加签名'''    
+#    wbs_ids = [
+#            '17SD018315001',
+#            '17SD018315002']
+#    op.operateBaozhangImg(wbs_ids)

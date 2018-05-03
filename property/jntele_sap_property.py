@@ -31,7 +31,7 @@ class LteSapProperty(object):
             print('---> 开始比对%s'%(wbs_id))
             dats_tmp = dats_sap[dats_sap['工程编码'] == wbs_id]
             if dats_tmp.shape[0] == 0:
-                print('---> 工程编码【%s】对应未找到对应的RRU数和天线数信息，默认均返回0')
+                print('---> 工程编码【%s】对应未找到对应的RRU数和天线数信息，默认均返回0'%(wbs_id))
                 dats_log.loc[log_index] = ['E',wbs_id,'天线和RRU','SAP中未查到工程编码对应信息']
                 log_index += 1
                 rru_num = 0
