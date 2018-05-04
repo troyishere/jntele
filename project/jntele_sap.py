@@ -205,7 +205,6 @@ class OperateLteSAP(object):
             for tianxian in list_tianxian:
                 dats_tmp = dats_wbs[dats_wbs['物料编码'] == tianxian]
                 if dats_tmp.shape[0] != 0:
-#                    print(dats_tmp.loc[dats_tmp.index[0]])
                     num_tianxian +=  Series(dats_tmp.loc[dats_tmp.index[0]]).tolist()[1]
             for rru in list_rru:
                 dats_tmp = dats_wbs[dats_wbs['物料编码'] == rru]

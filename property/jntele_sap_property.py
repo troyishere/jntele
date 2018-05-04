@@ -25,6 +25,7 @@ class LteSapProperty(object):
         dats_base = pd.read_excel(self.dir_base+file_base,
                                   dtype = {'资源ID':str,'固定资产目录':str})
         dats_sap = pd.read_excel(file_sap,sheetname = 'zhucai_num')
+        dats_detail = pd.read_excel(file_sap,sheetname = 'zhucai')
         dats_log = DataFrame(columns=['等级','工程编码','主材类型','说明'])
         log_index = 0
         for wbs_id in wbs_ids:
@@ -39,22 +40,45 @@ class LteSapProperty(object):
             else:
                 rru_num = Series(dats_tmp.loc[dats_tmp.index[0]]).tolist()[1]
                 tianxian_num = Series(dats_tmp.loc[dats_tmp.index[0]]).tolist()[2]
-                
             dats_tmp = dats_base[dats_base['工程编码'] == wbs_id]
             base_rru = dats_tmp[dats_tmp['资产名称']=='分布式基站设备'].shape[0]
             base_tianxian = dats_tmp[dats_tmp['资产名称']=='定向天线'].shape[0]
             if rru_num == base_rru:
-                print('-----> RRU数目ok：%d'%(rru_num))
+                print('    > RRU总数目ok：%d'%(rru_num))
             else:
-                print('-----> RRU数目不同：资产表中为%d，SAP中为%d'%(base_rru,rru_num))
+                print('    > RRU总数目不同：资产表中为%d，SAP中为%d'%(base_rru,rru_num))
                 dats_log.loc[log_index] = ['E',wbs_id,'RRU','基础表中为%d,SAP中为%d'%(base_rru,rru_num)]
                 log_index += 1
             if tianxian_num == base_tianxian:
-                print('-----> 天线数目ok：%d'%(tianxian_num))
+                print('    > 天线总数目ok：%d'%(tianxian_num))
             else:
-                print('-----> 天线数目不同：资产表中为%d，SAP中为%d'%(base_tianxian,tianxian_num))
+                print('    > 天线总数目不同：资产表中为%d，SAP中为%d'%(base_tianxian,tianxian_num))
                 dats_log.loc[log_index] = ['E',wbs_id,'天线','基础表中为%d,SAP中为%d'%(base_tianxian,tianxian_num)]
                 log_index += 1
+            print('    > 开始核算主材数目：')
+            
+            dats_tmp = dats_base[dats_base['工程编码'] == wbs_id]
+            list_zhucai = Series(dats_tmp['物料编码']).unique().tolist()
+            if 'none' in list_zhucai:
+                print('     > 存在未定物料编码的资产，请核实！')
+                dats_log.loc[log_index] = ['E',wbs_id,'物料编码','存在none，请确定资源所对应物料编码']
+                log_index += 1
+                list_zhucai.remove('none')
+            dats_tmp2 = dats_detail[dats_detail['工程编码']==wbs_id]
+            for zhucai in list_zhucai:
+                num_base = dats_tmp[dats_tmp['物料编码']==zhucai].shape[0]
+                dats_tmp3 = dats_tmp2[dats_tmp2['物料编码'] == zhucai]
+                if dats_tmp3.shape[0] != 0:
+                    num_sap =  Series(dats_tmp3.loc[dats_tmp3.index[0]]).tolist()[3]
+                else:
+                    print('      > %s: 在SAP中没有')
+                    num_sap = 0
+                if num_base == num_sap:
+                    print('      > %s: SAP %d;基础表 %d,ok'%(zhucai,num_sap,num_base))
+                else:
+                    print('      > %s: SAP %d;基础表 %d,请核实！'%(zhucai,num_sap,num_base))
+                    dats_log.loc[log_index] = ['E',wbs_id,zhucai,'SAP %d;基础表 %d,需核实'%(num_sap,num_base)]
+                    log_index += 1
         
         if dats_log.shape[0] == 0:
             print('-> 比对完全成功，无相关日志输出')

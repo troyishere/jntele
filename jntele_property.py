@@ -85,10 +85,10 @@ if __name__ == '__main__':
     op = OperateLteProperty()
     
     ## 生成资源录入表
-##    tmp = op.createLteResource('LTE6-0416.xlsx')   
-    # 生成资源录入表,并向资产基础管理文件追加资产条目
-#    op.appendLteProperty('LTE六期资源录入0502.xlsx','LTE6-0416.xlsx')    
-#    wbs_ids = [
+#    tmp = op.createLteResource('LTE6-0416.xlsx')   
+#     生成资源录入表,并向资产基础管理文件追加资产条目
+#    tmp = op.appendLteProperty('LTE六期资源录入0502.xlsx','LTE6-0504.xlsx')    
+    wbs_ids = [
 #            '17SD018303003',
 #            '17SD018305001',
 #            '17SD018305002',
@@ -102,17 +102,17 @@ if __name__ == '__main__':
 #            '17SD018314003',
 #            '17SD018314004',
 #            '17SD018315001',
-#            '17SD018315002',
-#            ]
+#            '17SD018315002'
+#            '17SD018303005',
+#            '17SD018305003',
+
+            ]
     # 匹配资源ID
-#    op.matchLteWebResource('LTE六期资源录入0403.xlsx',wbs_ids)
-#    op.matchLteSapZhucai('LTE六期资源录入0403.xlsx','gongcheng\\sap_ok\\LTE6-ALL-0502-ok.xlsx',wbs_ids)
-    
-    # 生成PDF版资产明细
-#    wbs_ids = [
-#        '17SD002342005'
-#        ]
-#    tmp = op.printLteProperty('LTE五期.xlsx',wbs_ids)
+#    op.matchLteWebResource('LTE六期资源录入0502.xlsx',wbs_ids)
+    # 匹配SAP主材
+#    op.matchLteSapZhucai('LTE六期资源录入0502.xlsx','gongcheng\\sap_ok\\LTE6-ALL-0502-ok.xlsx',wbs_ids)
+    # 生成资产明细
+    op.printLteProperty('LTE六期资源录入0502.xlsx',wbs_ids)
     
     # 生成导入表
 #    wbs_ids = [

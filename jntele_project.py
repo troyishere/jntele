@@ -27,20 +27,6 @@ class OperateLteProject(object):
         self.df_wbs = pd.read_excel(dir_in + wbs_in)
         self.df_danwei = pd.read_excel(dir_in + 'danwei.xlsx')
     
-    
-    def getWBSName(self,wbs_id):
-        '''获取工程编码对应的工程名'''
-        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
-        ls = dfs[wbs_base['wbs_name']].tolist()
-        if len(ls)==0:
-            wbs_name = '2018年济南电信LTE主设备工程'
-        else:
-            wbs_name = ls[0]
-        return wbs_name
-    def getAllWbs(self):
-#        return Series(self.df_wbs[wbs_base['wbs_id']).tolist()
-        pass
-    
     # 获取SAP相关数据    
     def getLteSapData(self,file_in,zhucai_file='lte_zhucai.xlsx',dir_in='sap_old\\',dir_out='sap_ok\\'):
         op = OperateLteSAP(self.dir_base,self.dir_log)

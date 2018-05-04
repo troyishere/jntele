@@ -7,11 +7,16 @@ Created on Sat Apr  7 23:11:27 2018
 
 import sys
 sys.path.append('..\\')
+import os
 from jntele_base import LteBase
 from pandas import Series,DataFrame
 import pandas as pd
 import pdfkit
-
+from PyPDF2.pdf import PdfFileReader,PdfFileWriter
+from pdfminer.pdfparser import PDFParser,PDFDocument
+from pdfminer.layout import LAParams
+from pdfminer.pdfinterp import PDFResourceManager,PDFPageInterpreter
+from pdfminer.converter import PDFPageAggregator
 
 HH_NUM1=10;         #自动换行字符长度1
 HH_NUM2=12;         #自动换行字符长度2
@@ -75,7 +80,9 @@ class LtePrint(object):
         self.dir_base = dir_base
         self.dir_log = dir_log
         self.ltebase = LteBase()
-
+        self.key_yanshou = 'WBSD'
+        self.dats_log = DataFrame(columns=['等级','工程编码','资源名称','说明'])
+        self.log_index = 0
     
     # 无线网CMD调用函数    
     def printLteProperty(self,file_base,wbs_ids,dir_out = 'print_ok\\',saveOne=True):
@@ -83,8 +90,6 @@ class LtePrint(object):
         '''wbs_ids为工程编码列表'''
         dats_base = pd.read_excel(self.dir_base+file_base,
                                   dtype = {'资源ID':str,'固定资产目录':str})
-        dats_log = DataFrame(columns=['等级','工程编码','资源名称','说明'])
-        log_index = 0
         print('===================================================')
         print('-> 开始自动生成无线网工程资产明细表PDF版')
         for wbs_id in wbs_ids:
@@ -99,9 +104,9 @@ class LtePrint(object):
                 print('-----> 该工程有%d条资产未匹配资源ID:')
                 for inx in dats_tmp.index:
                     print('       %d:资源名称【%s】'%(inx,dats_tmp.loc[inx,'资源名称']))
-                    dats_log.loc[log_index] = ['E',wbs_id,dats_tmp.loc[inx,'资源名称'],
+                    self.dats_log.loc[self.log_index] = ['E',wbs_id,dats_tmp.loc[inx,'资源名称'],
                                  '对应资源ID为空']
-                    log_index += 1
+                    self.log_index += 1
             fuzes = Series(dats_wbs['单位'].unique())
             fuze_list = Series(dats_wbs['单位'])
             if saveOne:
@@ -113,7 +118,11 @@ class LtePrint(object):
                 print('       负责人为%s'%(fuze))
                 df_zichan = dats_wbs[['资源ID','资产名称','规格程式','厂家(简)','所在地点']]
                 file_out = '%s%s%s-%s-资产明细原始.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
+                file_end = '%s%send//%s-%s-资产明细打印.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
                 self._getLteProperty(wbs_id,fuze,df_zichan,file_out)
+                self._getLtePropertyPrintPage(wbs_id,file_out,file_end)
+                
+                
             else:
                 print('-----> 该工程编码按照施工单位生成资产明细表')
                 for fuze in fuzes:
@@ -121,11 +130,12 @@ class LtePrint(object):
                     df_zichan = df_zichan[['资源ID','资产名称','规格程式','厂家(简)','所在地点']]
                     file_out = '%s%s%s-%s-资产明细原始.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
                     self._getLteProperty(wbs_id,fuze,df_zichan,file_out)
-        if dats_log.shape[0] == 0:
+                    
+        if self.dats_log.shape[0] == 0:
             print('---> 匹配完全成功，无相关日志输出')
         else:
             log_out = self.dir_log + '资产明细PDF日志' + LteBase.getTimeStr() + '.csv'
-            dats_log.to_csv(log_out,header=True,index=False)
+            self.dats_log.to_csv(log_out,header=True,index=False)
             print('---> 请查看相关日志:%s'%(log_out))             
         print('-> 无线网工程资产明细表PDF版已生成')
         print('===================================================')
@@ -178,15 +188,17 @@ class LtePrint(object):
             htmls.append(get_td_3ok('局端'))
             htmls.append("        </tr>")
             num = num + 1
-        htmls.append("        <tr>")
-        htmls.append(get_td_3ok(''))
-        htmls.append(get_td_3ok(fuze))
-        htmls.append(get_td_3ok('WBSID'))
-        htmls.append(get_td_3ok(wbs_id))
-        
-        htmls.append("        </tr>")
+#        htmls.append("        <tr>")
+#        htmls.append(get_td_3ok(''))
+#        htmls.append(get_td_3ok(fuze))
+#        htmls.append(get_td_3ok('WBSID'))
+#        htmls.append(get_td_3ok(wbs_id))
+#        
+#        htmls.append("        </tr>")
         htmls_end = [
         "   </table>",
+#        "<br />",
+        get_font_str(fuze + ' | ' + self.key_yanshou + ' | '+wbs_id,4),
         "<br />",
         get_font_str("施工单位签字/盖章：",4),
         get_kongge(30),
@@ -224,8 +236,135 @@ class LtePrint(object):
             pdfkit.from_string(yanshou_strs,file_out,options=options)
             print('-----> 资产明细已保存：【%s】'%(file_out))
         except LookupError as err:
+            print('-----> PDF操作中存在错误！')
             pass
+        
+        
         return htmls
+    
+    def _getLtePropertyPrintPage(self,wbs_id,file_pdf,file_end):
+        '''生成要打印签字的资产明细页'''
+        print('---> 开始生成%s要打印签字的资产明细页'%(wbs_id))
+        (page_num,page_end) = self._getYanshouKeyPage(file_pdf,self.key_yanshou)
+        fp_in = open(file_pdf, "rb")
+        pdf_in = PdfFileReader(fp_in)
+        pageCount = pdf_in.getNumPages()
+        if pageCount != page_num+1:
+            print('     > PyPDF2(%d)及pdfminer(%d)判定文件页数不同'%(pageCount,page_num))
+            self.dats_log.loc[self.log_index] = ['E',wbs_id,'PDF文件',
+                             'PyPDF2(%d)及pdfminer(%d)判定文件页数不同,未生成最后签字页'%(pageCount,page_num)]
+            self.log_index += 1
+            return
+        if page_end == -1:
+            print('   > 未找到关键字【%s】所在的页，也即未找到最后签字页'%(self.key_yanshou))
+            self.dats_log.loc[self.log_index] = ['E',wbs_id,'PDF文件',
+                             '未找到关键字【%s】所在的页，也即未找到最后签字页'%(self.key_yanshou)]
+            self.log_index += 1
+            return 
+        page = pdf_in.getPage(page_end)
+        pdf_out = PdfFileWriter()
+        pdf_out.addPage(page)
+        fp_out = open(file_end, 'wb')
+        pdf_out.write(fp_out)
+        fp_in.close()
+        fp_out.close()
+        print('---> 已获取资产明细最后一页并已保存至%s'%(file_end))
+        
+        if page_num == page_end + 1:
+            print('   > 需把%s文件删除最后1页'%(file_pdf))
+            self._removeYanshouEndPage(file_pdf)
+#        
+#        pdf_file = 'pdf\\17SD002341003-资产明细.pdf'
+#        pdf_save = 'pdf\\17SD002341003-打印.pdf'
+#        pdf_in = PdfFileReader(open(pdf_file, "rb"))
+#        pageCount_in = pdf_in.getNumPages()
+#        pdf_out = PdfFileWriter()
+#        page = pdf_in.getPage(pageCount_in-1)
+#        pdf_end = PdfFileWriter() 
+#        pdf_end.addPage(page)
+#        pdf_end.write(open(pdf_save, 'wb'))
+#        print('---> 已获取资产明细最后一页并已保存至%s'%(pdf_file))
+        
+    def _removeYanshouEndPage(self,file_pdf):
+        '''移除资产明细表中的无用页'''
+        fd_in = open(file_pdf, "rb")
+        pdf_in = PdfFileReader(fd_in)
+        page_num = pdf_in.getNumPages()
+        pdf_out = PdfFileWriter()
+        for num in range(page_num-1):
+            page = pdf_in.getPage(num)
+            pdf_out.addPage(page)
+        fd_out = open(file_pdf+'tmp.pdf', "wb")
+        pdf_out.write(fd_out)
+        fd_in.close()
+        fd_out.close()
+        os.remove(file_pdf)
+        os.rename(os.path.join('',file_pdf+'tmp.pdf'),os.path.join('',file_pdf))
+        print('   > 已把最后一页删除')
+            
+    def _getYanshouKeyPage(self,pdf_file,key='WBID'):
+        '''获取关键字所在的页数'''
+        # 创建一个与文档关联的解释器
+        praser = PDFParser(open(pdf_file,'rb'))
+        # 创建PDF文档的对象
+        doc = PDFDocument()
+        # 连接文档对象和解析器
+        
+        praser.set_document(doc)
+        doc.set_parser(praser)
+        # 初始化文档， 可以设置密码
+        doc.initialize()
+        
+        # 获取文档页数
+        page_num = 0
+        for page in doc.get_pages():
+            page_num += 1
+        page_num -= 1
+        
+        # 创建PDF的资源管理器
+        resource = PDFResourceManager()
+        # 设定参数进行分析
+        laparam=LAParams()
+        # 创建一个聚合器
+        device = PDFPageAggregator(resource, laparams=laparam)
+        # 创建PDF页面解释器
+        interpreter = PDFPageInterpreter(resource, device)
+        # 处理每一页
+        i = 0
+        isEnd = False
+        for page in doc.get_pages():
+            if i == page_num:
+                # 使用页面解析器来读取 
+                interpreter.process_page(page) 
+                # 使用聚合器来获取内容 
+                layout = device.get_result()
+                for out in layout:
+                    if hasattr(out, "get_text") and key in out.get_text():
+                        isEnd = True
+            i += 1
+        if isEnd:
+            page_end = page_num
+        elif page_num != 0:
+            i = 0
+            for page in doc.get_pages():
+                if i == page_num-1:
+                    # 使用页面解析器来读取 
+                    interpreter.process_page(page) 
+                    # 使用聚合器来获取内容 
+                    layout = device.get_result()
+                    for out in layout:
+                        if hasattr(out, "get_text") and key in out.get_text():
+                            isEnd = True
+                i += 1
+            if isEnd:
+                page_end = page_num - 1
+        if not isEnd:
+            print('   > 未发现含有关键字【%s】的页面，请核实'%(key))
+            page_end = -1
+        print('   > 本文档最大页为%d，关键字在%d页'%(page_num,page_end))
+        return (page_num,page_end)
+    
+    
     
     # 获取LTE总验收报告
     def getLteMultipleReport(self,file_in,dir_in='report_in\\',dir_out='report_ok\\'):

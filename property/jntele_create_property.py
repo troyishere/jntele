@@ -89,8 +89,11 @@ class LteCreateProperty(object):
         else:
             base_id_max = max(dats_base['编号'])
             dats_new['编号'] = [bianhao + base_id_max + 1 for bianhao in dats_new['编号']]
+#            print(dats_new.columns)
+#            print(dats_base.columns)
             dats_base = dats_base.append(dats_new)
             dats_base.to_excel(self.dir_base+file_base,header=True,index=False)
+#            print(dats_base.columns)
             print('---> 已将追加资产保存到基础管理文件中:%s'%(self.dir_base+file_base))
             print('---> 追加完全成功，无相关日志输出')
             print('-> 向LTE资产基础管理文件追加资产条目，并资源录入表完成')
