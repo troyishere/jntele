@@ -1,20 +1,42 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 30 15:05:50 2018
-
+在建工程分析表相关处理
 @author: lenovo
 """
+
+import sys
+sys.path.append('..\\')
+from jntele_base import LteBase
 import pandas as pd
-from pandas import Series,DataFrame
+from pandas import Series#,DataFrame
 
 class OperateZaijian(object):
     
     def __init__(self,dir_base,dir_log):
         self.dir_base = dir_base
         self.dir_log = dir_log
+        self.base_col = LteBase().base_col
+
+    def updateProjectBase(self,file_in,dir_in='zaijian_in\\',file_base = 'base\\wbs-ok.xlsx'):
         
-    def updateProjectData(self,file_in,dir_in):
-        pass
+        print('--->开始将在建工程表信息更新到基础表中...')
+        dats = pd.read_excel(self.dir_base + dir_in+file_in)
+        dats = dats[dats['主项管理员'] == '赵宗良']
+        
+        col_stays = [
+                '工程编码',
+                '工程名称',
+                '工程开工日期',
+                '工程完工日期',
+                '初验批复日期',
+                '终验批复日期',
+                '工程状态',
+                '设计批复金额(最新)']
+        dats = dats[col_stays]
+        dats.columns = self.base_col
+        dats.to_excel(file_base,header=True,index=False)
+        print('--->处理好的基础表已保存到:'+file_base)
         
     def getZaijianData(self,file_in,dir_in='zaijian_in\\',dir_out='zaijian_ok\\',save=False):
         

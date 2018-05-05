@@ -79,8 +79,8 @@ class OperateLteProperty(object):
     def operateBaozhangImg(self,wbs_ids,dir_in = 'img_baozhang\\'):
         op = OperateLteImage(self.dir_base,self.dir_log)
         return op.operateBaozhangImg(wbs_ids,dir_in)
-    
-'''=============================================================='''             
+'''=============================================================='''
+
 if __name__ == '__main__':
     op = OperateLteProperty()
     

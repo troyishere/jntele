@@ -19,7 +19,6 @@ class OperateLteImage(object):
         self.dir_base = dir_base
         self.dir_log = dir_log
         
-        
     def matchYanshouImage(self,wbs_ids = '',
                           dir_in = 'img_yanshou_old\\',dir_out = 'img_yanshou_ok\\'):
         '''将JPG格式的验收报告扫描件命名格式化'''

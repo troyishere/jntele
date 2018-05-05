@@ -11,7 +11,9 @@ Created on Wed Aug 30 08:45:13 2017
 
 @author: lenovo
 """
-
+import sys
+sys.path.append('..\\')
+from jntele_base import LteBase
 import pandas as pd
 from pandas import Series,DataFrame
 
@@ -99,7 +101,7 @@ class OperateLteSAP(object):
         dats.to_excel(writer,'all',header=True,index=False)
         '''=================================================================='''
         dats_ok = self._getSapSum(dats)
-        dats_ok.to_excel(writer,'sum',header=True,index=True)
+        dats_ok.to_excel(writer,'sum',header=True,index=False)
         '''=================================================================='''
         dats = self._getSapZhucai(dats)
         dats.to_excel(writer,'zhucai',header=True,index=True)
@@ -160,6 +162,20 @@ class OperateLteSAP(object):
         dats_ok = dats_ok.loc[:,col_names]
         col_names = col_names[-(col_names.isin(['工程物资-设备','工程物资-材料']))]
         dats_ok['SUM(不包含材料)'] = dats_ok[col_names].sum(axis=1)
+#        dats_ok['工程编码'] = dats_ok.index.tolist()
+        wbs_ids = dats_ok.index.tolist()
+        ltebase = LteBase()
+        wbs_names = []
+        wbs_touzis = []
+        for wbs_id in wbs_ids:
+            wbs_names.append(ltebase.getWBSName(wbs_id))
+            wbs_touzis.append(ltebase.getWbsInvest(wbs_id))
+        col_ok = ['工程编码','工程名称','设计批复金额']
+        col_ok.extend(dats_ok.columns)
+        dats_ok['工程编码'] = wbs_ids
+        dats_ok['工程名称'] = wbs_names
+        dats_ok['设计批复金额'] = wbs_touzis
+        dats_ok = dats_ok[col_ok]
         print("--->已获取各工程编码入账数据")
         return dats_ok
     # 获取SAP主材信息

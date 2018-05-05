@@ -18,58 +18,94 @@ wbs_base = {
         'wbs_end':'工程完工日期',
         'wbs_yanshou':'初验批复日期'    
         }
-
 class LteBase(object):
     
-    def __init__(self,wbs_in='wbs0316-ok.xlsx',dir_in='base\\'):
+    def __init__(self,wbs_in='wbs-ok.xlsx',dir_in='base\\'):
         self.dir_in = dir_in
-#        print(os.getcwd())
-#        print(os.path.abspath('.'))
         self.df_wbs = pd.read_excel(self.dir_in + wbs_in)
         self.df_danwei = pd.read_excel(self.dir_in + 'danwei.xlsx')
-        
+        self.base_col = [
+                '工程编码',
+                '工程名称',
+                '工程开工日期',
+                '工程完工日期',
+                '初验批复日期',
+                '终验批复日期',
+                '工程状态',
+                '设计批复金额'
+                ]
+#        print(os.path.abspath('.'))
     @staticmethod
     def getTimeStr():
+        '''公共函数，获取当前时间字符串'''
         return datetime.now().strftime("%Y%m%d%H%M%S")
     @staticmethod
     def getDateStr():
+        '''公共函数，获取当前日期字符串'''
         return datetime.now().strftime("%Y%m%d")[2:]
     
     def getWBSName(self,wbs_id):
-        '''获取工程编码对应的工程名'''
+        '''获取工程编码对应的工程名称'''
         dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
         ls = dfs[wbs_base['wbs_name']].tolist()
         if len(ls)==0:
+            print('---> %s未找到对应的工程信息，返回默认工程名称'%(wbs_id))
             wbs_name = '2018年济南电信LTE主设备工程'
         else:
             wbs_name = ls[0]
         return wbs_name
     
-    def getChuyanDate(self,wbs_id):
-        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
-        dfs = dfs.fillna('')
-        if dfs.shape[0] == 0:
-            print('----> 未找到工程编码%s对应的初验日期,返回<空>'%(wbs_id))
-            return ''
-        ls = dfs.loc[dfs.index[0]].values
-        return self.private_getDateStr(ls[4])
     
+    def getWbsInvest(self,wbs_id):
+        '''获取工程编码对应的工程投资'''
+        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
+        ls = dfs['设计批复金额'].tolist()
+        if len(ls)==0:
+            print('---> %s未找到对应的工程投资，返回0'%(wbs_id))
+            return 0
+        return ls[0]
+            
+
+    
+    def getWBSID(self,wbs_name):
+        '''获取工程名称对应的工程编码'''
+        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_name']]==wbs_name]
+        ls = dfs[wbs_base['wbs_id']].tolist()
+        if len(ls)==0:
+            print('---> %s未找到对应的工程编码信息，返回默认工程编码'%(wbs_name))
+            wbs_id = '18SDLTE001'
+        else:
+            wbs_id = ls[0]
+        return wbs_id
+        
     def getAllWBSId(self):
-        return Series(self.df_wbs[wbs_base['wbs_id']]).tolist()
+        '''获取在管控的所有工程编码'''
+        return self.df_wbs[wbs_base['wbs_id']].tolist()
     
     def getWBSDates(self,wbs_id):
         '''获取工程编码对应的开工、完工、初验、终验时间'''
         dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
         dfs = dfs.fillna('')
         if dfs.shape[0] == 0:
-            print('----> 未找到工程编码%s对应信息'%(wbs_id))
+            print('----> 未找到工程编码%s对应日期信息'%(wbs_id))
             return ['','','','']
         else:
             ls = dfs.loc[dfs.index[0]].values
             return [self.private_getDateStr(ls[2]),
                     self.private_getDateStr(ls[3]),
                     self.private_getDateStr(ls[4]),
-                    '']
+                    self.private_getDateStr(ls[5])]
+    
+    def getChuyanDate(self,wbs_id):
+        '''获取工程编码的初验时间'''
+        dfs = self.df_wbs[self.df_wbs[wbs_base['wbs_id']]==wbs_id]
+        dfs = dfs.fillna('')
+        ls = dfs[wbs_base['wbs_yanshou']].tolist()
+        if len(ls)==0:
+            print('----> 未找到工程编码%s对应的初验日期,返回<空>'%(wbs_id))
+            return ''
+        return self.private_getDateStr(ls[0])
+    
     def getDanwei(self,danwei):
         '''获取单位简称'''
         dfs= self.df_danwei.loc[:,danwei];
@@ -102,7 +138,6 @@ class LteBase(object):
         elif isinstance(date_info,str):
             '''输入为字符串'''
             if date_info == '':
-                print('----> 有未确定日期')
                 return ''
             elif date_info.isdecimal():
                 dt = self.private_fromNum2Date(int(date_info))
@@ -132,9 +167,14 @@ class LteBase(object):
         return datetime(year,month,day)
     
 if __name__ == '__main__':
-    base_operate = OperateBase()
-#    wbs_name = base_operate.getWBSName('17SD002341003')
-#    name = base_operate.getDanweiName('郭佳文')
-#    nameAll = base_operate.getDanweiNameAll('郭佳文')
-#    fuze = base_operate.getDanweiFuze('郭佳文')
-    print(base_operate.getWBSDates('17SD018315001'))  
+    op = LteBase()
+#    print(LteBase.getTimeStr())
+#    print(LteBase.getDateStr())
+    wbs_id = '17SD018303003'
+#    print(op.getWBSName(wbs_id))
+#    wbs_name = '中国电信LTE六期工程济南800M无线网第六批基站主设备项目02批工程'
+#    print(op.getWBSID(wbs_name))
+#    print(op.getAllWBSId())
+#    print(op.getWBSDates(wbs_id))
+#    print(op.getChuyanDate(wbs_id))
+    print(op.getWbsInvest(wbs_id))
