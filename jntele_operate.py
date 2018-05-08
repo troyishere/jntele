@@ -10,17 +10,18 @@ from jntele_lte import OperateLteInfo
 from jntele_spider import OperateHuanbao
 from jntele_property import OperateLteProperty
 from jntele_project import OperateLteProject
+import datetime
 
 if __name__ == '__main__':
 
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    print('这是Troy的操作工具')
+    print('这是Troy的操作工具:%s'%(datetime.datetime.strftime(datetime.datetime.now(),"%d-%b-%Y")))
     ''' =================工程相关操作==========================='''
-    sap_file_in = 'LTE6-ALL-0502.xlsx'
-    zaijian_file_in = '在建工程明细总表(实时)导出(0504）.xlsx'
-    op = OperateLteProject()
+#    sap_file_in = 'LTE6-ALL-0502.xlsx'
+#    zaijian_file_in = '在建工程明细总表(实时)导出(0504）.xlsx'
+#    op = OperateLteProject()
 #    op.getLteSapData(sap_file_in)
-    op.updateProjectBase(zaijian_file_in)       
+#    op.updateProjectBase(zaijian_file_in)       
     ''' =================转固相关操作==========================='''
 #    op = OperateLteProperty() 
     ## 生成资源录入表
@@ -82,11 +83,11 @@ if __name__ == '__main__':
     
     '''网管数据相关操作'''
 #    lteinfo_operate = OperateLteInfo()
-#    huawei_in='lte_huawei_0424.xlsx'
-#    nokia_in='lte_nokia_0424.xlsx'
+#    huawei_in='lte_huawei_0507.xlsx'
+##    nokia_in='lte_nokia_0424.xlsx'
 #    huawei_out = lteinfo_operate.get_huawei_lte(huawei_in,base_design=True)
-#    nokia_out = lteinfo_operate.get_nokia_lte(nokia_in,base_design=False)
-#    lteinfo_operate.l_mix_dats(huawei_out,nokia_out)
+##    nokia_out = lteinfo_operate.get_nokia_lte(nokia_in,base_design=False)
+##    lteinfo_operate.l_mix_dats(huawei_out,nokia_out)
 
     
     '''环保录入信息搜索操作'''

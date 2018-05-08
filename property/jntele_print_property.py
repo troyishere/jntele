@@ -117,7 +117,7 @@ class LtePrint(object):
                 fuze = max(fuze_dir, key=fuze_dir.get)
                 print('       负责人为%s'%(fuze))
                 df_zichan = dats_wbs[['资源ID','资产名称','规格程式','厂家(简)','所在地点']]
-                file_out = '%s%s%s-%s-资产明细原始.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
+                file_out = '%s%s%s-%s-资产明细.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
                 file_end = '%s%send//%s-%s-资产明细打印.pdf'%(self.dir_base,dir_out,wbs_id,fuze)
                 self._getLteProperty(wbs_id,fuze,df_zichan,file_out)
                 self._getLtePropertyPrintPage(wbs_id,file_out,file_end)
@@ -245,7 +245,7 @@ class LtePrint(object):
     def _getLtePropertyPrintPage(self,wbs_id,file_pdf,file_end):
         '''生成要打印签字的资产明细页'''
         print('---> 开始生成%s要打印签字的资产明细页'%(wbs_id))
-        (page_num,page_end) = self._getYanshouKeyPage(file_pdf,self.key_yanshou)
+        (page_num,page_end) = self._getPropertyKeyPage(file_pdf,self.key_yanshou)
         fp_in = open(file_pdf, "rb")
         pdf_in = PdfFileReader(fp_in)
         pageCount = pdf_in.getNumPages()
@@ -272,7 +272,7 @@ class LtePrint(object):
         
         if page_num == page_end + 1:
             print('   > 需把%s文件删除最后1页'%(file_pdf))
-            self._removeYanshouEndPage(file_pdf)
+            self._removePropertyEndPage(file_pdf)
 #        
 #        pdf_file = 'pdf\\17SD002341003-资产明细.pdf'
 #        pdf_save = 'pdf\\17SD002341003-打印.pdf'
@@ -285,7 +285,7 @@ class LtePrint(object):
 #        pdf_end.write(open(pdf_save, 'wb'))
 #        print('---> 已获取资产明细最后一页并已保存至%s'%(pdf_file))
         
-    def _removeYanshouEndPage(self,file_pdf):
+    def _removePropertyEndPage(self,file_pdf):
         '''移除资产明细表中的无用页'''
         fd_in = open(file_pdf, "rb")
         pdf_in = PdfFileReader(fd_in)
@@ -302,7 +302,7 @@ class LtePrint(object):
         os.rename(os.path.join('',file_pdf+'tmp.pdf'),os.path.join('',file_pdf))
         print('   > 已把最后一页删除')
             
-    def _getYanshouKeyPage(self,pdf_file,key='WBID'):
+    def _getPropertyKeyPage(self,pdf_file,key='WBID'):
         '''获取关键字所在的页数'''
         # 创建一个与文档关联的解释器
         praser = PDFParser(open(pdf_file,'rb'))

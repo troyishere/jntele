@@ -42,7 +42,7 @@ class LteBase(object):
     @staticmethod
     def getDateStr():
         '''公共函数，获取当前日期字符串'''
-        return datetime.now().strftime("%Y%m%d")[2:]
+        return datetime.now().strftime("%y%m%d")
     
     def getWBSName(self,wbs_id):
         '''获取工程编码对应的工程名称'''

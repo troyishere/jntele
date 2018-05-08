@@ -8,6 +8,7 @@ import sys
 sys.path.append('..\\')
 from jntele_base import LteBase
 from PIL import Image
+import wand.image as wand_image
 import pytesseract
 import random
 import os
@@ -66,24 +67,48 @@ class OperateLteImage(object):
                 region_wbs.show()
             '''==================================================================='''
     def operateBaozhangImg(self,wbs_ids,dir_in = 'img_baozhang\\'):
-        '''JPG格式无线网处理报账添加签名'''
+        '''PDF格式无线网处理报账添加签名'''
         print('-> 开始对无线网报账单进行处理')
         for wbs_id in wbs_ids:
             print('---> 开始处理%s报账单'%(wbs_id))
-            file_in = self.dir_base + dir_in + wbs_id + '.jpg'
+            file_in = self.dir_base + dir_in + wbs_id + '.pdf'
             file_out = self.dir_base + dir_in + wbs_id + '报账单.jpg'
-            self._operateBaozhang(file_in,file_out)
+            jpg_in = self._operateBaozhangPDF(file_in)
             os.remove(file_in)
+            self._operateBaozhangJPG(jpg_in,file_out)
+            os.remove(jpg_in)
             print('     > 处理完成，已保存入：%s'%(file_out))
             print('     > 原文件已删除')
         print('-> 无线网报账单处理完成')
 
-    def _operateBaozhang(self,file_in,file_out):
+    def _operateBaozhangJPG(self,file_in,file_out):
         '''处理报账单函数，将项目经理姓名添加到报账单内'''
         img_baozhang=Image.open(file_in)
         img_name = Image.open(self.dir_base + 'img_base\\name%02d.jpg'%(random.randint(1,5)))
         w_point = random.randint(500,1000)
-        h_point = random.randint(950,1000)
+        h_point = random.randint(1500,1600)
         box = (w_point,h_point,w_point+img_name.size[0],h_point+img_name.size[1])
         img_baozhang.paste(img_name,box)
         img_baozhang.save(file_out, 'JPEG')
+        
+    def _operateBaozhangPDF(self,file_in):
+        '''将PDF文件变更为JPG格式后处理报账单'''
+        print('    > 开始将PDF版的报账单转化为JPG格式')
+        image_pdf = wand_image.Image(filename=file_in,resolution=300)
+        image_jpeg = image_pdf.convert('jpg')
+        # wand已经将PDF中所有的独立页面都转成了独立的二进制图像对象。我们可以遍历这个大对象，并把它们加入到req_image序列中去。
+        if len(image_jpeg.sequence) != 1:
+            print('    > PDF报账单文件页数不为1，请核实')
+            return ''
+        img = image_jpeg.sequence[0]
+        img_page = wand_image.Image(image=img)
+        img_ok = img_page.make_blob('jpg')
+        file_out = file_in.replace('.pdf','.jpg')
+        ff = open(file_out,'wb')
+        ff.write(img_ok)
+        ff.close()
+        image_pdf.clear()
+        print('    > 已将PDF版的报账单转化为JPG格式')
+        return file_out
+            
+        
