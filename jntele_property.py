@@ -16,7 +16,7 @@ class OperateLteProperty(object):
     '''无线网转固处理整合类'''
     def __init__(self):
         self.dir_base = 'zhuangu\\'
-        self.dir_log = 'zhuangu\\log\\'        
+        self.dir_log = 'log\\'        
     '''生成LTE资源录入表'''    
     def createLteResource(self,file_in,
                           dir_in='',dir_out='create_ok\\',saveProp = True):
@@ -76,22 +76,22 @@ if __name__ == '__main__':
     ## 生成资源录入表
 #    tmp = op.createLteResource('LTE6-0416.xlsx')   
 #     生成资源录入表,并向资产基础管理文件追加资产条目
-#    tmp = op.appendLteProperty('LTE六期资源录入0502.xlsx','LTE6-0504.xlsx')    
+#    tmp = op.appendLteProperty('LTE六期资源录入0502.xlsx','LTE6-0504.xlsx')
     wbs_ids = [
-#            '17SD018303003',
-#            '17SD018305001',
-#            '17SD018305002',
-#            '17SD018309001',
-#            '17SD018310001',
-#            '17SD018310002',
-#            '17SD018311002',
-#            '17SD018311003',
-#            '17SD018314001',
-#            '17SD018314002',
-#            '17SD018314003',
-#            '17SD018314004',
-#            '17SD018315001',
-#            '17SD018315002',
+            '17SD018303003',
+            '17SD018305001',
+            '17SD018305002',
+            '17SD018309001',
+            '17SD018310001',
+            '17SD018310002',
+            '17SD018311002',
+            '17SD018311003',
+            '17SD018314001',
+            '17SD018314002',
+            '17SD018314003',
+            '17SD018314004',
+            '17SD018315001',
+            '17SD018315002',
 #            '17SD018303005',
 #            '17SD018305003',
             ]
@@ -104,28 +104,37 @@ if __name__ == '__main__':
     
     # 生成导入表
 #    wbs_ids = [
-#        '17SD002342005'
-#        ]
-#    tmp = op.operateLteImport('LTE五期.xlsx',wbs_ids)
+#            '17SD018305002',
+#            '17SD018309001',
+#            '17SD018310001',
+#            '17SD018311002',
+#            '17SD018314001',
+#            '17SD018314002',
+#            '17SD018315001']
+#    tmp = op.operateLteImport('LTE六期资源录入0502.xlsx',wbs_ids)
     
     #生成单站验收报告
 #    single_name = 'single0408.xlsx'
 #    op.getLteSingleReport(single_name)
     
     #生成总验收报告
-#    multiple_name = 'multiple0416.xlsx'
+#    multiple_name = 'multiple0508.xlsx'
 #    op.getLteMultipleReport(multiple_name)
     
     #生成通用验收报告
 #    op.getCommonReport('17SD018316001','谷中杰','LTE六期枢纽楼华为网管')
-    
-    
 
-#    '''将JPG格式的验收报告扫描件命名格式化'''
+    '''将JPG格式的验收报告扫描件命名格式化'''
 #    op.matchYanshouImage()
 
-
-#    '''将PDF格式无线网处理报账添加签名'''    
+    '''将PDF格式无线网处理报账添加签名'''
 #    wbs_ids = [
-#            '1']
+#            '17SD018305002',
+#            '17SD018309001',
+#            '17SD018310001',
+#            '17SD018311002',
+#            '17SD018314001',
+#            '17SD018314002',
+#            '17SD018315001']
 #    op.operateBaozhangImg(wbs_ids)
+

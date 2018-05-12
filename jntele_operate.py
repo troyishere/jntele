@@ -6,10 +6,12 @@ Created on Sun Jan 14 01:01:59 2018
 """
 
 import pandas as pd
-from jntele_lte import OperateLteInfo
 from jntele_spider import OperateHuanbao
 from jntele_property import OperateLteProperty
 from jntele_project import OperateLteProject
+from jntele_network import OperateLteNetwork
+
+
 import datetime
 
 if __name__ == '__main__':
@@ -17,10 +19,10 @@ if __name__ == '__main__':
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     print('这是Troy的操作工具:%s'%(datetime.datetime.strftime(datetime.datetime.now(),"%d-%b-%Y")))
     ''' =================工程相关操作==========================='''
-#    sap_file_in = 'LTE6-ALL-0502.xlsx'
+    sap_file_in = 'LTE6-ALL-0509.xlsx'
 #    zaijian_file_in = '在建工程明细总表(实时)导出(0504）.xlsx'
-#    op = OperateLteProject()
-#    op.getLteSapData(sap_file_in)
+    op = OperateLteProject()
+    op.getLteSapData(sap_file_in)
 #    op.updateProjectBase(zaijian_file_in)       
     ''' =================转固相关操作==========================='''
 #    op = OperateLteProperty() 
@@ -81,20 +83,23 @@ if __name__ == '__main__':
 #            '17SD018315002']
 #    op.operateBaozhangImg(wbs_ids)
     
-    '''网管数据相关操作'''
-#    lteinfo_operate = OperateLteInfo()
-#    huawei_in='lte_huawei_0507.xlsx'
-##    nokia_in='lte_nokia_0424.xlsx'
-#    huawei_out = lteinfo_operate.get_huawei_lte(huawei_in,base_design=True)
-##    nokia_out = lteinfo_operate.get_nokia_lte(nokia_in,base_design=False)
-##    lteinfo_operate.l_mix_dats(huawei_out,nokia_out)
+    ''' ===============网管数据相关操作==========================='''
+    op = OperateLteNetwork()
+    huawei_in = 'lte_huawei_0507.xlsx'
+    nokia_in = 'lte_nokia_0507.xlsx'
+#    file_huawei = op.getHuaweiLte(huawei_in)
+#    file_nokia = op.getNokiaLte(nokia_in)
+    file_800_base = 'LTE800M建设总表20180508.xlsx'
+    tmp = op.matchL800MBase(file_800_base,file_huawei,file_nokia)
+#    file_lte_base = 'LTE1800M建设总表201805.xlsx'
+#    tmp = op.matchLTECABase(file_lte_base,file_huawei,file_nokia)
 
     
-    '''环保录入信息搜索操作'''
+#    '''环保录入信息搜索操作'''
 #    huanbao_operate = OperateHuanbao()
 #    countys = ['平阴','历下','市中','槐荫','天桥','高新','历城','长清','平阴','济阳','商河','章丘']
-#    huanbao_file = huanbao_operate.getJnteleWebInfo(countys=countys,date='2018-4-1',ifAll=True)
+#    huanbao_file = huanbao_operate.getJnteleWebInfo(countys=countys,date='2018-5-1',ifAll=True)
 #    huanbao_operate.session.close()
 #    huanbao_operate.matchJnteleInfo(key='济南电信LTE主设备项目',file_in='ALL20180409.xlsx',stations_in='stations2.xlsx')
-    print('程序执行完成')
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+#    print('程序执行完成')
+#    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
