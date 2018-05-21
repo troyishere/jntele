@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon May  7 13:21:08 2018
-
+无线网网管相关操作
 @author: lenovo
 """
 

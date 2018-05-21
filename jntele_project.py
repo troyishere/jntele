@@ -37,9 +37,9 @@ class OperateLteProject(object):
     
 if __name__ == '__main__':
 
-    sap_file_in = 'LTE6-ALL-0511.xlsx'
+    sap_file_in = 'CDMA-ALL-0517.xlsx'
 #    zaijian_file_in = '在建工程明细总表(实时)导出(0504）.xlsx'
     op = OperateLteProject()
-#    op.getLteSapData(sap_file_in)
+    op.getLteSapData(sap_file_in)
 #    op.updateZhucaiPrice(sap_file_in)
 #    op.updateProjectBase(zaijian_file_in)

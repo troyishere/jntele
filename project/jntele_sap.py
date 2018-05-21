@@ -92,7 +92,7 @@ class OperateLteSAP(object):
             dats.to_excel(writer,'zhucai',header=True,index=True)
             '''=============================================================='''
             dats = self._getLteZhucaiNum(dats,zhucai_file)
-#            dats.to_excel(writer,'zhucai_num',header=True,index=False)
+            dats.to_excel(writer,'zhucai_num',header=True,index=False)
             writer.save()
             print("-> SAP文件信息已解析，数据已存入:"+ file_out)
         else:
